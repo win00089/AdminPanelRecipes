@@ -1,7 +1,13 @@
 <script setup>
     import AppLayout from '@/layouts/AppLayout.vue';
+    import AppButton from '@/components/AppButton.vue';
 </script>
     
 <template>
- <AppLayout></AppLayout>
+ <AppLayout>
+    <template #title>Рецепты</template>
+    <template #controls>
+        <AppButton text="Добавить рецепт"></AppButton>
+    </template>
+ </AppLayout>
 </template>
