@@ -45,5 +45,7 @@
         font-size: 28px
         font-weight: 700
         color: $violet    
-     
+
+    .inner
+      padding-top: 20px 
 </style>

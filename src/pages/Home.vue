@@ -21,6 +21,45 @@
     <template #controls>
         <AppButton text="Добавить рецепт"></AppButton>
     </template>
-    <template #inner>{{ recipes }}</template>
+    <template #inner>
+        <div class="wrapper">
+            <el-table :data="recipes" style="width: 100%">
+                <el-table-column prop="idMeal" label="Id" />
+                <el-table-column label="Image" >
+                    <template #default="scope">
+                        <img :src="scope.row.strMealThumb" class="image" />
+                    </template>
+                </el-table-column>
+                <el-table-column prop="strMeal" label="Name" />
+                <el-table-column prop="strArea" label="Area" />
+                <el-table-column prop="strCategory" label="Category" />
+                <el-table-column  label="Tags" >
+                    <template #default="scope"> 
+                        <template v-if="scope?.row?.strTags">
+                            <el-tag
+                                v-for="(tag, key) in scope.row.strTags.split(',')"
+                                :key="key"
+                                type="primary"
+                                class="tag"
+                            >
+                            {{ tag }}
+                            </el-tag>
+                        </template>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </div>
+    </template>
  </AppLayout>
 </template>
+
+<style lang="sass" scoped>
+@import '@/assets/styles/index'
+
+.image
+  width: 70px
+  height: 70px      
+
+.tag
+  margin: 2px 3px      
+</style>
