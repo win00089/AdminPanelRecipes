@@ -1,6 +1,7 @@
 <script setup>
     import {ref, onMounted } from 'vue';
     import { RecipeService } from '@/services';
+    import { ROUTES_PATHS } from '@/constants';
     import AppLayout from '@/layouts/AppLayout.vue';
     import AppButton from '@/components/AppButton.vue';
 
@@ -11,6 +12,14 @@
             recipes.value = await RecipeService.getRecipensByLetter();
         }catch{}
     };
+
+    const getRecipePath = (id) =>{
+        return `${ROUTES_PATHS.RECIPE.split(':')[0]}${id}`;
+    }
+
+    // 19.30 prog
+
+    //3.40 симонов
 
     onMounted(fetchRecipes);
 </script>
@@ -27,7 +36,10 @@
                 <el-table-column prop="idMeal" label="Id" />
                 <el-table-column label="Image" >
                     <template #default="scope">
-                        <img :src="scope.row.strMealThumb" class="image" />
+                        <router-link :to="getRecipePath(scope.row.idMeal)">
+
+                            <img :src="scope.row.strMealThumb" class="image" />
+                        </router-link>
                     </template>
                 </el-table-column>
                 <el-table-column prop="strMeal" label="Name" />
