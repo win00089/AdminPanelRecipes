@@ -28,7 +28,9 @@
  <AppLayout>
     <template #title>Рецепты</template>
     <template #controls>
-        <AppButton text="Добавить рецепт"></AppButton>
+        <router-link :to="getRecipePath('new')">
+            <AppButton text="Добавить рецепт"></AppButton>
+        </router-link>
     </template>
     <template #inner>
         <div class="wrapper">
