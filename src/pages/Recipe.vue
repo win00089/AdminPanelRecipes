@@ -28,7 +28,13 @@
     }
 
     const normalizeRecipeIngredients = () =>{
+        const normalizeIngredients = [];
         
+        for(let i = 1; i <= 20; i++){
+            if(recipe.value[`strIngredient${i}`]){
+                // 32.07 дописать функцию и как работает
+            }
+        }
     }
 
     onMounted(async () => {
