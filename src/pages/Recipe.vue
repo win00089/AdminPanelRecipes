@@ -28,14 +28,19 @@
     }
 
     const normalizeRecipeIngredients = () =>{
-        const normalizeIngredients = [];
+        const normalizedIngredients = [];
         
         for(let i = 1; i <= 20; i++){
             if(recipe.value[`strIngredient${i}`]){
-                // 32.07 дописать функцию и как работает
+                const ingr = {
+                    title: recipe.value[`strIngredient${i}`],
+                    measure: recipe.value[`strMeasure${i}`],
+                };
+                normalizedIngredients.push(ingr);
             }
         }
-    }
+        recipeIngredients.value = normalizedIngredients;
+    };
 
     onMounted(async () => {
         if(parseInt(recipeId)){
@@ -93,6 +98,24 @@
                         placeholder="Instruction"
                     />
                </div> 
+            </div>
+            <div class="ingredients">
+                <div class="subtitle">Ingredients</div>
+                <div
+                    v-for="(ingredient, index) in recipeIngredients"
+                    :key="`${ingredient.title}-${index}`"
+                    class="row"
+                >
+                <div class="col col-small">
+                    {{ index + 1 }}
+                </div>
+                <div class="col">
+                    {{ ingredient.measure }}
+                </div>
+                <div class="col">
+                    {{ ingredient.title }}
+                </div>
+                </div>
             </div>
         </div>
     </template>
