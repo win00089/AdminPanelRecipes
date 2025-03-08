@@ -4,12 +4,16 @@
     import { ROUTES_PATHS } from '@/constants';
     import AppLayout from '@/layouts/AppLayout.vue';
     import AppButton from '@/components/AppButton.vue';
+    import AppLoader from '@/components/AppLoader.vue';
 
     const recipes = ref();
+    const isLoading = ref(false);
 
     const fetchRecipes = async () =>{
         try{
+            isLoading.value = true;
             recipes.value = await RecipeService.getRecipensByLetter();
+            isLoading.value = false;
         }catch{}
     };
 
@@ -17,23 +21,21 @@
         return `${ROUTES_PATHS.RECIPE.split(':')[0]}${id}`;
     }
 
-    // 19.30 prog
-
-    //3.40 симонов
-
     onMounted(fetchRecipes);
 </script>
     
 <template>
- <AppLayout>
-    <template #title>Рецепты</template>
-    <template #controls>
-        <router-link :to="getRecipePath('new')">
-            <AppButton text="Добавить рецепт"></AppButton>
-        </router-link>
-    </template>
-    <template #inner>
-        <div class="wrapper">
+    <AppLayout >
+        <template #title>Рецепты</template>
+        <template #controls>
+            <router-link :to="getRecipePath('new')">
+                <AppButton text="Добавить рецепт"></AppButton>
+            </router-link>
+        </template>
+        <template #inner>
+            
+            <AppLoader v-if="isLoading" /> 
+        <div v-else class="wrapper">
             <el-table :data="recipes" style="width: 100%">
                 <el-table-column prop="idMeal" label="Id" />
                 <el-table-column label="Image" >

@@ -3,12 +3,15 @@
     import { useRoute } from 'vue-router';
     import { RecipeService, CommonService } from '@/services';
     import { useRootStore } from '@/stores/root';
+    import { notify } from '@/utils';
     import AppLayout from '@/layouts/AppLayout.vue';
     import AppButton from '@/components/AppButton.vue';
+    import AppLoader from '@/components/AppLoader.vue';
 
     const route = useRoute();
     const rootStore = useRootStore();
     const recipeId = route?.params.id;
+    const isLoading = ref(false);
     const recipe = ref(RecipeService.getEmptyRecipe());
     const recipeUpdated = ref(RecipeService.getEmptyRecipe());
     const isCreatingMode = ref(true);
@@ -18,7 +21,9 @@
 
     const fetchRecipe = async () =>{
         try{
+            isLoading.value = true;
             const data = await RecipeService.getRecipeById(recipeId);
+            isLoading.value = false;
             recipe.value = {...data}; 
             recipeUpdated.value = {...data}; 
             isCreatingMode.value = false;
@@ -74,7 +79,12 @@
             const params = { ...recipeUpdated.value}
 
             denormalizeRecipeIngredients(params);
+            isLoading.value = true;
             await RecipeService.createRecipe();
+            setTimeout(()=>{
+                isLoading.value = false;
+                notify('Созданно', `Рецепт ${params.strMeal} создан`, 'success');
+            }, 500);
         } catch(err){
             console.log(err);
         }
@@ -85,7 +95,13 @@
             const params = { ...recipeUpdated.value}
 
             denormalizeRecipeIngredients(params);
+            isLoading.value = true;
             await RecipeService.updateRecipe();
+
+            setTimeout(()=>{
+                isLoading.value = false;
+                notify('Обновлено', `Рецепт ${params.strMeal} обновлен`, 'success');
+            }, 500);
         } catch(err){
             console.log(err);
         }
@@ -106,7 +122,8 @@
         <AppButton text="Сохранить" @click="createOrUpdateRecipe"></AppButton>
     </template>
     <template #inner>
-        <div class="wrapper">
+        <AppLoader v-if="isLoading" />
+        <div v-else class="wrapper">
             <div class="row">
                 <div class="col">
                     <div class="label">Title</div>
