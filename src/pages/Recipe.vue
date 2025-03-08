@@ -42,6 +42,14 @@
         recipeIngredients.value = normalizedIngredients;
     };
 
+    const addIngredient = () => {
+        recipeIngredients.value.push(CommonService.getEmptyIngredient());
+    };
+
+    const removeIngredient = (index) => {
+        recipeIngredients.value.splice(index, 1);
+    };
+
     onMounted(async () => {
         if(parseInt(recipeId)){
             await fetchRecipe();
@@ -88,9 +96,39 @@
                     </el-select>
                 </div>
             </div>
+            <div class="ingredients">
+                <div class="subtitle">Ingredients</div>
+                <div
+                    v-for="(ingredient, index) in recipeIngredients"
+                    :key="`${ingredient.title}-${index}`"
+                    class="row align-items-flex-end"
+                >
+                <div class="col col-small mb-2">
+                    {{ index + 1 }}
+                </div>
+                <div class="col">
+                    <div class="label">Measure</div>
+                    <el-input
+                        v-model="recipeIngredients[index].measure"
+                        placeholder="Measure"
+                    />
+                </div>
+                <div class="col">
+                    <div class="label">Title</div>
+                    <el-input
+                        v-model="recipeIngredients[index].title"
+                        placeholder="Title"            
+                    />
+                </div>
+                <div class="col col-small mb-2">
+                    <AppButton circle icon="Delete" @click="() => removeIngredient(index)" />
+                </div>
+                </div>
+                <AppButton text="Add ingrdient" @click="addIngredient" />
+            </div>
             <div class="row">
                <div class="col">
-                    <div class="label">Instructions</div>
+                    <div class="subtitle">Instructions</div>
                     <el-input 
                         v-model="recipeUpdated.strInstructions"
                         :autosize="{minRows: 2, maxRows: 5}"
@@ -99,25 +137,19 @@
                     />
                </div> 
             </div>
-            <div class="ingredients">
-                <div class="subtitle">Ingredients</div>
-                <div
-                    v-for="(ingredient, index) in recipeIngredients"
-                    :key="`${ingredient.title}-${index}`"
-                    class="row"
-                >
-                <div class="col col-small">
-                    {{ index + 1 }}
-                </div>
-                <div class="col">
-                    {{ ingredient.measure }}
-                </div>
-                <div class="col">
-                    {{ ingredient.title }}
-                </div>
-                </div>
-            </div>
         </div>
     </template>
  </AppLayout>
 </template>
+
+<style lang="sass" scoped>
+@import '@/assets/styles/index';
+
+.ingredients
+  padding-bottom: 16px
+
+.mb-2
+  margin-top: 5px
+  padding-top: 15px              
+  padding-left: 15px              
+</style>
