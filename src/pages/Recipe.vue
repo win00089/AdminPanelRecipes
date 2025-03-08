@@ -3,12 +3,15 @@
     import { useRoute } from 'vue-router';
     import { RecipeService, CommonService } from '@/services';
     import { useRootStore } from '@/stores/root';
+    import { notify } from '@/utils';
     import AppLayout from '@/layouts/AppLayout.vue';
     import AppButton from '@/components/AppButton.vue';
+    import AppLoader from '@/components/AppLoader.vue';
 
     const route = useRoute();
     const rootStore = useRootStore();
     const recipeId = route?.params.id;
+    const isLoading = ref(false);
     const recipe = ref(RecipeService.getEmptyRecipe());
     const recipeUpdated = ref(RecipeService.getEmptyRecipe());
     const isCreatingMode = ref(true);
@@ -18,7 +21,9 @@
 
     const fetchRecipe = async () =>{
         try{
+            isLoading.value = true;
             const data = await RecipeService.getRecipeById(recipeId);
+            isLoading.value = false;
             recipe.value = {...data}; 
             recipeUpdated.value = {...data}; 
             isCreatingMode.value = false;
@@ -33,6 +38,7 @@
         for(let i = 1; i <= 20; i++){
             if(recipe.value[`strIngredient${i}`]){
                 const ingr = {
+                    id: Math.random().toString(36).slice(2),
                     title: recipe.value[`strIngredient${i}`],
                     measure: recipe.value[`strMeasure${i}`],
                 };
@@ -42,12 +48,63 @@
         recipeIngredients.value = normalizedIngredients;
     };
 
+    const denormalizeRecipeIngredients = (recipe) => {
+        for(let i = 1; i <= 20; i++){
+            const ingredient = recipeIngredients.value[i - 1];
+
+            if(ingredient?.title && ingredient?.measure){
+                recipe[`strIngredient${i}`] = ingredient.title;
+                recipe[`strMeasure${i}`] = ingredient.measure;
+            } else{
+                recipe[`strIngredient${i}`] = '';
+                recipe[`strMeasure${i}`] = '';
+            }
+        }
+    }
+
     const addIngredient = () => {
         recipeIngredients.value.push(CommonService.getEmptyIngredient());
     };
 
     const removeIngredient = (index) => {
         recipeIngredients.value.splice(index, 1);
+    };
+
+    const createOrUpdateRecipe = () => {
+        isCreatingMode.value ? createRecipe() : updateRecipe();
+    }
+
+    const createRecipe = async () => {
+        try {
+            const params = { ...recipeUpdated.value}
+
+            denormalizeRecipeIngredients(params);
+            isLoading.value = true;
+            await RecipeService.createRecipe();
+            setTimeout(()=>{
+                isLoading.value = false;
+                notify('Созданно', `Рецепт ${params.strMeal} создан`, 'success');
+            }, 500);
+        } catch(err){
+            console.log(err);
+        }
+    };
+
+    const updateRecipe = async () => {
+        try {
+            const params = { ...recipeUpdated.value}
+
+            denormalizeRecipeIngredients(params);
+            isLoading.value = true;
+            await RecipeService.updateRecipe();
+
+            setTimeout(()=>{
+                isLoading.value = false;
+                notify('Обновлено', `Рецепт ${params.strMeal} обновлен`, 'success');
+            }, 500);
+        } catch(err){
+            console.log(err);
+        }
     };
 
     onMounted(async () => {
@@ -62,10 +119,11 @@
  <AppLayout>
     <template #title>{{ isCreatingMode ? 'Новый рецепт' : recipeUpdated.strMeal }}</template>
     <template #controls>
-        <AppButton text="Сохранить"></AppButton>
+        <AppButton text="Сохранить" @click="createOrUpdateRecipe"></AppButton>
     </template>
     <template #inner>
-        <div class="wrapper">
+        <AppLoader v-if="isLoading" />
+        <div v-else class="wrapper">
             <div class="row">
                 <div class="col">
                     <div class="label">Title</div>
@@ -100,7 +158,7 @@
                 <div class="subtitle">Ingredients</div>
                 <div
                     v-for="(ingredient, index) in recipeIngredients"
-                    :key="`${ingredient.title}-${index}`"
+                    :key="`${ingredient.id}-${index}`"
                     class="row align-items-flex-end"
                 >
                 <div class="col col-small mb-2">
