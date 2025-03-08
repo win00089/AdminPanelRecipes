@@ -36,7 +36,8 @@ onMounted(isPathActive);
     @import '@/assets/styles/index'
 
     .menu
-      height: 100vh
+      height: 100%
+      min-height: 100vh
       padding: 20px 5px 0
       border-right: 1px solid $border
 
